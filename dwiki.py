@@ -1,8 +1,8 @@
 from omg import *
 import things
 
-wad_path = "C:/Users/Jerry/Downloads/zdoom-2.7.1/DOOM2.WAD"
-map = "MAP01"
+wad_path = "C:/Users/Jerry/Downloads/numus/btsx_e1_99i9/btsx_e1.wad"
+map = "MAP19"
 output_path = "C:/Users/Jerry/Documents/junk/mapdata.txt"
 
 wad = WAD(wad_path)
@@ -21,10 +21,62 @@ def get_thing_count(map,thing_id):
 	return count
 
 def mapdata(map):
-	template = "===Map data===\n{{mapdata|\nthings={0}|\nvertexes={1}|\nlinedefs{2}|\nsidedefs{3}|\nsectors{4}}}"
-	return template.format(len(map.things),len(map.vertexes),len(map.linedefs),len(map.sidedefs),len(map.sectors))
+	template = "mapdata|\nthings={0}|\nvertexes={1}|\nlinedefs={2}|\nsidedefs={3}|\nsectors={4}"
+	return "===Map data===\n{{"+template.format(len(map.things),len(map.vertexes),len(map.linedefs),len(map.sidedefs),len(map.sectors))+"}}"
 	
-mape = mapedit.MapEditor(wad.maps["MAP01"])
+def write_secrets():
+	for s in mape.sectors:
+		if (s.type==9):
+			f.write("# '''Sector "+str(mape.sectors.index(s))+"'''\n")
+	
+def write_statistics():
+	f.write("== Statistics ==\n\n")
+	f.write(mapdata(mape))
+	f.write("\n\n===Things===\n\n{| {{prettytable}}")
+	#monsters
+	if (len(monsters)>0):
+		f.write("\n!Monsters||[[I'm Too Young To Die|ITYTD]] and [[Hey, Not Too Rough|HNTR]]||[[Hurt Me Plenty|HMP]]||[[Ultra-Violence|UV]] and [[Nightmare!|NM]]")
+		for m in monsters:
+			if (m.get_total_count() > 0):
+				f.write("\n|-\n"+m.to_wiki_line())
+		f.write("\n|-")
+	#powerups
+	if (len(powerups)>0):
+		f.write("\n!Powerups||ITYTD and HNTR||HMP||UV and NM")
+		for m in powerups:
+			if (m.get_total_count() > 0):
+				f.write("\n|-\n"+m.to_wiki_line())
+		f.write("\n|-")
+	#weapons
+	if (len(weapons)>0):
+		f.write("\n!Weapons||ITYTD and HNTR||HMP||UV and NM")
+		for m in weapons:
+			if (m.get_total_count() > 0):
+				f.write("\n|-\n"+m.to_wiki_line())
+		f.write("\n|-")
+	#ammunition
+	if (len(ammo)>0):
+		f.write("\n!Ammunition||ITYTD and HNTR||HMP||UV and NM")
+		for m in ammo:
+			if (m.get_total_count() > 0):
+				f.write("\n|-\n"+m.to_wiki_line())
+		f.write("\n|-")
+	#keys
+	if (len(keys)>0):
+		f.write("\n!Keys||ITYTD and HNTR||HMP||UV and NM")
+		for m in keys:
+			if (m.get_total_count() > 0):
+				f.write("\n|-\n"+m.to_wiki_line())
+		f.write("\n|-")
+	#other
+	if (len(others)>0):
+		f.write("\n!Other||ITYTD and HNTR||HMP||UV and NM")
+		for m in others:
+			if (m.get_total_count() > 0):
+				f.write("\n|-\n"+m.to_wiki_line())
+		f.write("\n|}")
+
+mape = mapedit.MapEditor(wad.maps[map])
 
 monsters = []
 for i in things.monsters:
@@ -57,51 +109,14 @@ for i in things.others:
 		others.append(things.Thing(i,get_thing_count(mape,i)))
 	
 f = open(output_path,'w')
-f.write("== Statistics ==\n")
-f.write(mapdata(mape))
-f.write("\n\n===Things===\n{| {{prettytable}}")
-#monsters
-if (len(monsters)>0):
-	f.write("\n!Monsters||[[I'm Too Young To Die|ITYTD]] and [[Hey, Not Too Rough|HNTR]]||[[Hurt Me Plenty|HMP]]||[[Ultra-Violence|UV]] and [[Nightmare!|NM]]")
-	for m in monsters:
-		if (m.get_total_count() > 0):
-			f.write("\n|-\n"+m.to_wiki_line())
-	f.write("\n|-")
-#powerups
-if (len(powerups)>0):
-	f.write("\n!Powerups||ITYTD and HNTR||HMP||UV and NM")
-	for m in powerups:
-		if (m.get_total_count() > 0):
-			f.write("\n|-\n"+m.to_wiki_line())
-	f.write("\n|-")
-#weapons
-if (len(weapons)>0):
-	f.write("\n!Weapons||ITYTD and HNTR||HMP||UV and NM")
-	for m in weapons:
-		if (m.get_total_count() > 0):
-			f.write("\n|-\n"+m.to_wiki_line())
-	f.write("\n|-")
-#ammunition
-if (len(ammo)>0):
-	f.write("\n!Ammunition||ITYTD and HNTR||HMP||UV and NM")
-	for m in ammo:
-		if (m.get_total_count() > 0):
-			f.write("\n|-\n"+m.to_wiki_line())
-	f.write("\n|-")
-#keys
-if (len(keys)>0):
-	f.write("\n!Keys||ITYTD and HNTR||HMP||UV and NM")
-	for m in keys:
-		if (m.get_total_count() > 0):
-			f.write("\n|-\n"+m.to_wiki_line())
-	f.write("\n|-")
-#other
-if (len(others)>0):
-	f.write("\n!Other||ITYTD and HNTR||HMP||UV and NM")
-	for m in others:
-		if (m.get_total_count() > 0):
-			f.write("\n|-\n"+m.to_wiki_line())
-	f.write("\n|-")
+#main description
+f.write("'''"+map+": MAP NAME''' is the nth map in "+wad_path[wad_path.rfind("/")+1:]+". It was designed by Author, using the track Midi Name by Composer.")
+#sections
+f.write("\n== Walkthrough ==\n\n===Essential===\n\n===Other points of interest===\n\n===Secrets===\n")
+write_secrets()
+f.write("\n===Bugs===\n\n== Areas / Screenshots ==\n\n== Speedrunning ==\nThe records for this map on the [http://doomedsda.us Doomed Speed Demos Archive] are:\n\n{| {{prettytable}}\n!Run||Time||Player||Date||File||Notes\n|-\n|[[UV speed]]|| || || ||{{competnftp|**|**}}||\n|-\n|[[NM speed]]|| || || ||{{competnftp|**|**}}||\n|-\n|[[UV max]]|| || || ||{{competnftp|**|**}}||\n|-\n|[[NM100S]]||\n|| || ||{{competnftp|**|**}}||\n|-\n|[[UV -fast]]|| || || ||{{competnftp|**|**}}||\n|-\n|[[UV -respawn]]|| || || ||{{competnftp|**|**}}||\n|-\n|[[UV Tyson]]|| || ||\n||{{competnftp|**|**}}||\n|-\n|[[UV pacifist]]|| || || ||{{competnftp|**|**}}||\n|}\n\n== Deathmatch ==\n\n")
+write_statistics()
+f.write("\n\n== Technical Information ==\n\n== Inspiration and Development ==\n\n== Trivia ==\n\n== External links ==\n\n*")
 f.close()
 #template
 
