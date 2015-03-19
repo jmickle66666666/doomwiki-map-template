@@ -2,7 +2,37 @@
 #example (3001,"Imp","Imps","Imp")
 
 list = []
+allthings = []
 
+class Thing(object):
+	def __init__(self,thing_id,count):
+		self.thing_id = thing_id
+		self.itytd_count = count[0]
+		self.hmp_count = count[1]
+		self.uv_count = count[2]
+		
+	def get_total_count(self):
+		return self.itytd_count + self.hmp_count + self.uv_count
+	
+	def to_wiki_line(self):
+		if (self.get_total_count() == 0): return ""
+		thing = get(self.thing_id)
+		link=""
+		thingname = thing[1]
+		thingplural = thing[2]
+		thinglink = thing[3]
+		if (thinglink == thingname):
+			link = "[["+thingname+"]]"
+		else:
+			link = "[["+thinglink+"|"+thingname+"]]"
+		
+		name = ""
+		if (thingname in thingplural):
+			name = thingplural
+			name = name.replace(thingname,link)
+			link = name
+		return "||"+link+"||"+str(self.itytd_count)+"||"+str(self.hmp_count)+"||"+str(self.uv_count)
+		
 def add(thing_id,name,plural="",link=""):
 	if (plural == ""):
 		plural = name+"s"
@@ -11,7 +41,8 @@ def add(thing_id,name,plural="",link=""):
 	list.append((thing_id,name,plural,link))
 
 def get(thing_id):
-	return list[0]
+	for i in list:
+		if (i[0] == thing_id): return i
 
 #powerups
 add(2023,"Berserk")
@@ -66,7 +97,7 @@ add(65,"Heavy Weapon Dude")
 add(72,"Commander Keen")
 add(16,"Cyberdemon")
 add(3002,"Demon")
-add(3004,"Zombieman")
+add(3004,"Zombieman","Zombiemen")
 add(9,"Shotgun Guy")
 add(69,"Hell Knight")
 add(3001,"Imp")
@@ -80,7 +111,7 @@ add(84,"Wolfenstein SS")
 monsters=(68,64,3003,3005,65,72,16,3002,3004,9,69,3001,67,71,66,58,7,84)
 #other
 add(2035,"Barrel")
-others=(2035)
+others=[2035]
 
 
 
